@@ -1,13 +1,9 @@
-import {Component} from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'fountain-app',
-  template: require('./hello.html')
+  selector: 'mcbstm32-app',
+  template: require('./app.component.html')
 })
-export class HelloComponent {
-  public hello: string;
-
-  constructor() {
-    this.hello = 'Hello World!';
-  }
+export class AppComponent {
+  title = 'MCBSTM32';
 }

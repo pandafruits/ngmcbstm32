@@ -1,18 +1,15 @@
-import {Component} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
-import {AppComponent} from './app.component';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { ChartComponent } from './chart.component';
 
-@Component({
-  selector: 'mcbstm32-root',
-  template: '<router-outlet></router-outlet>'
-})
-export class RootComponent {}
-
-export const routes: Routes = [
-  {
-    path: '',
-    component: AppComponent
-  }
+const routes: Routes = [
+  { path: '', redirectTo: '/chart', pathMatch: 'full' },
+  { path: 'chart', component: ChartComponent}
 ];
 
-export const routing = RouterModule.forRoot(routes);
+@NgModule({
+  imports: [ RouterModule.forRoot(routes) ],
+  exports: [ RouterModule ]
+})
+export class AppRoutingModule {}
+

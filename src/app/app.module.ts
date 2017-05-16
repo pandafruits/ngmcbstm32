@@ -1,18 +1,22 @@
-import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
-import {routing, RootComponent} from './routes';
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { HttpModule, JsonpModule } from '@angular/http';
 
-import {HelloComponent} from './hello';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { ChartComponent } from './chart.component';
 
 @NgModule({
   imports: [
     BrowserModule,
-    routing
+    HttpModule,
+    JsonpModule,
+    AppRoutingModule
   ],
   declarations: [
-    RootComponent,
-    HelloComponent
+    AppComponent,
+    ChartComponent
   ],
-  bootstrap: [RootComponent]
+  bootstrap: [ AppComponent ]
 })
 export class AppModule {}
