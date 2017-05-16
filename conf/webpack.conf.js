@@ -73,7 +73,7 @@ module.exports = {
   devtool: 'source-map',
   output: {
     path: path.join(process.cwd(), conf.paths.tmp),
-    filename: 'index.js'
+    filename: 'main.js'
   },
   resolve: {
     extensions: [
@@ -83,5 +83,5 @@ module.exports = {
       '.ts'
     ]
   },
-  entry: `./${conf.path.src('index')}`
+  entry: `./${conf.path.src('main')}`
 };
