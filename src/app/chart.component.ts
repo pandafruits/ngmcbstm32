@@ -12,9 +12,9 @@ import { DataService } from './data.service';
   selector: 'mcbstm32-chart',
   template: `
     <div *ngIf="realtimeData">
-      Temperature: {{realtimeData.temperature}}
-      Humidity: {{realtimeData.humidity}}
-      Core Temperature: {{realtimeData.core_temperature}}
+      Temperature: {{realtimeData.temperature}} degC
+      Humidity: {{realtimeData.humidity}}%
+      Core Temperature: {{realtimeData.core_temperature}} degC
       Device Time: {{realtimeData.device_time}}
     </div>
   `,
@@ -24,13 +24,13 @@ export class ChartComponent implements OnInit {
   errorMessage: string;
   realtimeData: DataRealtime;
   historicalData: DataHistorical[];
-  historicalDataRequest = { Start: new Date(), End: new Date(), IntervalMinutes: 1 };
+  historicalDataRequest: RequestHistorical = this.setHistoricalDataRequest();
 
   constructor (private dataService: DataService) {}
 
   ngOnInit() {
     this.getRealtimeData();
-    // this.getHistoricalData(this.historicalDataRequest);
+    this.getHistoricalData(this.historicalDataRequest);
   }
 
   getRealtimeData() {
@@ -45,5 +45,20 @@ export class ChartComponent implements OnInit {
       .subscribe(
         historicalData  => this.historicalData = historicalData,
         error =>  this.errorMessage = <any>error);
+  }
+
+  private setHistoricalDataRequest(): RequestHistorical {
+    let nowInMsSince1970 = (new Date()).valueOf(); // now
+    let startInMsSince1970 = nowInMsSince1970 - 3600000; // an hour ago
+
+    let start = new Date(startInMsSince1970);
+    let end = new Date();
+
+    // convert to local time
+    let offset = new Date().getTimezoneOffset();
+    start.setMinutes(start.getMinutes() - offset);
+    end.setMinutes(start.getMinutes() - offset);
+
+    return { Start: start, End: end, IntervalMinutes: 1 };
   }
 }
