@@ -1,0 +1,25 @@
+<div *ngIf="realtimeData">
+  Temperature: {{realtimeData.temperature}} &#x2103;
+  Humidity: {{realtimeData.humidity}}%
+  Core Temperature: {{realtimeData.core_temperature}} &#x2103;
+  Device Time: {{realtimeData.device_time}}
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <div style="display: block;">
+      <canvas baseChart width="600" height="400"
+              [datasets]="lineChartData"
+              [labels]="lineChartLabels"
+              [options]="lineChartOptions"
+              [colors]="lineChartColors"
+              [legend]="lineChartLegend"
+              [chartType]="lineChartType"
+              (chartHover)="chartHovered($event)"
+              (chartClick)="chartClicked($event)">
+      </canvas>
+    </div>
+  </div>
+  <div class="col-md-6" style="margin-bottom: 10px">
+    <button (click)="HandleClick()">CLICK</button>
+  </div>
+</div>
