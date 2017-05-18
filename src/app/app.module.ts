@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpModule, JsonpModule } from '@angular/http';
+import { FormsModule } from '@angular/forms';
 
 import { ChartsModule } from 'ng2-charts';
 
@@ -13,6 +14,7 @@ import { ChartComponent } from './chart.component';
     BrowserModule,
     HttpModule,
     JsonpModule,
+    FormsModule,
     ChartsModule,
     AppRoutingModule
   ],

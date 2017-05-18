@@ -33,10 +33,17 @@ export class DataService {
 
   constructor (private http: Http) {}
 
-  getRealtimeData(): Observable<DataRealtime> {
-    return this.http.get(this.getRealtimeDataUrl)
-      .map(res => res.json() as DataRealtime)
-      .catch(DataService.HandleError);
+  getRealtimeData(intervalMs?: number): Observable<DataRealtime> {
+    if (!intervalMs) {
+      return this.http.get(this.getRealtimeDataUrl)
+        .map(res => res.json() as DataRealtime)
+        .catch(DataService.HandleError);
+    } else {
+      return Observable.interval(intervalMs).flatMap(
+        () => this.http.get(this.getRealtimeDataUrl)
+        .map(res => res.json() as DataRealtime)
+        .catch(DataService.HandleError));
+    }
   }
 
   postHistoricalData(request: RequestHistorical): Observable<DataHistorical[]> {

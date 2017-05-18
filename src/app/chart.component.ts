@@ -18,11 +18,8 @@ import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 export class ChartComponent implements OnInit {
   errorMessage: string;
   realtimeData: DataRealtime;
-
-  historicalTemp: number[] = [];
-  historicalHum: number[] = [];
-  historicalCoreTemp: number[] = [];
-  historicalDevTime: string[] = [];
+  chartPeriods = 'Hour Day Week'.split(' ');
+  selectedPeriod = 'Day';
 
   // lineChart
   @ViewChild(BaseChartDirective) chart: BaseChartDirective;
@@ -72,36 +69,60 @@ export class ChartComponent implements OnInit {
   public chartHovered(e: any): void {
     console.log(e);
   }
-
-  public HandleClick(): void {
-    console.log('Clicked');
-  }
   // end lineChart
 
   constructor (private dataService: DataService) {}
 
+  onSelectedPeriodChange(newValue: string) {
+    console.log(newValue);
+    this.selectedPeriod = newValue;
+    this.getHistoricalData(this.constructHistoricalDataRequest());
+  }
+
   ngOnInit() {
     this.getRealtimeData();
-    this.getHistoricalData(this.getHistoricalDataRequest());
+    this.getHistoricalData(this.constructHistoricalDataRequest());
   }
 
   getRealtimeData() {
+    // request a single real-time data first ...
     this.dataService.getRealtimeData()
       .subscribe(
-        realtimeData => this.realtimeData = realtimeData,
-        error =>  this.errorMessage = <any>error);
+        realtimeData => { console.log(realtimeData); this.realtimeData = realtimeData; },
+        error => this.errorMessage = <any>error);
+
+    // ... then request at fixed interval
+    this.dataService.getRealtimeData(60000)
+      .subscribe(
+        realtimeData => { console.log(realtimeData); this.realtimeData = realtimeData; },
+        error => this.errorMessage = <any>error);
   }
 
   getHistoricalData(request: RequestHistorical) {
     this.dataService.postHistoricalData(request)
       .subscribe(
-        historicalData => this.extractChartData(historicalData),
+        historicalData => { console.log(historicalData); this.updateChart(historicalData); },
         error =>  this.errorMessage = <any>error);
   }
 
-  private getHistoricalDataRequest(): RequestHistorical {
-    let nowInMsSince1970 = (new Date()).valueOf(); // now
-    let startInMsSince1970 = nowInMsSince1970 - 24 * 3600000; // 24 hours ago
+  private constructHistoricalDataRequest(): RequestHistorical {
+    let nowInMsSince1970 = (new Date()).valueOf();
+    let startInMsSince1970, intervalMinutes;
+
+    switch (this.selectedPeriod) {
+      case 'Hour':
+        startInMsSince1970 = nowInMsSince1970 - 3600000;
+        intervalMinutes = 3;
+        break;
+      case 'Day':
+        startInMsSince1970 = nowInMsSince1970 - 3600000 * 24;
+        intervalMinutes = 60;
+        break;
+      case 'Week':
+        startInMsSince1970 = nowInMsSince1970 - 3600000 * 24 * 5;
+        intervalMinutes = 360;
+        break;
+    }
 
     let start = new Date(startInMsSince1970);
     let end = new Date();
@@ -111,31 +132,31 @@ export class ChartComponent implements OnInit {
     start.setMinutes(start.getMinutes() - offset);
     end.setMinutes(start.getMinutes() - offset);
 
-    return { Start: start, End: end, IntervalMinutes: 60 };
+    return { Start: start, End: end, IntervalMinutes: intervalMinutes };
   }
 
-  private extractChartData(historicalData: DataHistorical[]) {
+  private updateChart(historicalData: DataHistorical[]) {
+    let historicalTemp: number[] = [];
+    let historicalHum: number[] = [];
+    let historicalCoreTemp: number[] = [];
+    let historicalDevTime: string[] = [];
+
     for (let d of historicalData) {
-      this.historicalTemp.push(d.temperature);
-      this.historicalHum.push(d.humidity);
-      this.historicalCoreTemp.push(d.core_temperature);
-      this.historicalDevTime.push(d.device_time.toString().split('T')[1]);
+      historicalTemp.push(d.temperature);
+      historicalHum.push(d.humidity);
+      historicalCoreTemp.push(d.core_temperature);
+      historicalDevTime.push(d.device_time.toString().slice(5, 16));
     }
 
-    console.log(this.historicalTemp);
-    console.log(this.historicalHum);
-    console.log(this.historicalCoreTemp);
-    console.log(this.historicalDevTime);
-
     this.lineChartData = [
-      {data: this.historicalTemp, label: 'Temperature'},
-      {data: this.historicalHum, label: 'Humidity'},
-      {data: this.historicalCoreTemp, label: 'Core Temperature'}
+      {data: historicalTemp, label: 'Temperature'},
+      {data: historicalHum, label: 'Humidity'},
+      {data: historicalCoreTemp, label: 'Core Temperature'}
     ];
 
     setTimeout(() => {
       if (this.chart && this.chart.chart && this.chart.chart.config) {
-        this.chart.chart.config.data.labels = this.historicalDevTime;
+        this.chart.chart.config.data.labels = historicalDevTime;
         this.chart.chart.update();
       }
     });
